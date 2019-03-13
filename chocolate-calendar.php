@@ -5,7 +5,7 @@
 /*
 Plugin Name: Chocolate-Calendar
 Plugin URI: https://github.com/Cloudssong/plugins
-Description: Only a little test to train Metaboxing.
+Description: A calendar to plan them all.
 Version: 1.0.0
 Author: Alexander Kottisch
 Author URI:https://github.com/Cloudssong
@@ -13,87 +13,111 @@ License: GPLv2 or later
 Text Domain: chocolate-calendar
 */
 
-class Choc_Calendar {
-    private $month;
-    private $year;
-    private $days_of_week;
-    private $num_days;
-    private $date_info;
-    private $day_of_week;
 
-    public function __construct( $month, $year, $days_of_week = array('So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa') ) {
-       // Bare minimum setup needed to build calendar
-        $this->month = $month;
-        $this->year = $year;
-        $this->days_of_week = $days_of_week;
-        $this->num_days = cal_days_in_month(CAL_GREGORIAN, $this->month, $this->year ); 
-        $this->date_info = getdate(strtotime('first day of', mktime(0,0,0,$this->month,1,$this->year)));
-        $this->day_of_week = $this->date_info['wday'];  
-    }
+function choc_calendar_styles() {
+    // call jquery (already registered by default)
+    wp_enqueue_script('jquery');
 
-    public function show() {
-        // Month a and year caption
-        $output = '<table class="calendar">';
-        $output .= '<caption>' . $this->date_info['month'] . ' ' . $this->year . '</caption';
-        $output .= '<tr>';
-
-        // Days of the week header
-        foreach ($this->days_of_week as $day) {
-            $output .= '<th class="header">' . $day . '</th>';
-        }
-
-        // Close header row and open first row of days
-        $output .= '</tr><tr>';
-
-        // If first day of a month does not fall on a Sunday we needd to fill beginning spache using colspan
-        if ( $this->day_of_week > 0 ) {
-            $output .= '<td colspan=""' . $this->day_of_week . '"></td>';
-        }
-
-        // Start numdays counter
-        $current_day = 1;
-
-        // Loop and build days
-        while ( $current_day <= $this->num_days ) {
-            // Reset 'day of week' counter and close each row if end of row
-            if ($this->day_of_week == 7 ) {
-                $this->day_of_week = 0;
-                $output .= '</tr><tr>';
-            }
-
-            // Build each day cell
-            $output .= '<td class="day">' . $current_day . '</td>';
-
-            // Increment counters
-            $current_day++;
-            $this->day_of_week++;
-        }
-
-        // Once num_days counter stops, if day of week counter is not 7, then we need to fill in the remaining space using colspan
-        if ($this->day_of_week != 7) {
-            $remaining_days = 7 - $this->day_of_week;
-            $output .= '<td colspan = ""' . $remaining_days . '"></td>';
-        }
-
-        // Close final row and table
-        $output .= '</tr>';
-        $output .= '</table>';
-
-        // Output this thing 
-        echo $output;
-    }
+    // register scripts and styles
+    wp_register_script( 'script_to_moment', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js', false, false, false );
+    wp_register_script( 'script_to_jquery_ui', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js', false, false, false );
+    wp_register_script( 'choc_calendar_script', plugin_dir_url( __FILE__ ) . 'choc-calendar.js' );
+    wp_register_style( 'choc_calendar_styles', plugin_dir_url( __FILE__ ) . 'choc-calendar.css' );
+    
+    // call scripts and styles
+    wp_enqueue_script( 'script_to_moment' );
+    wp_enqueue_script( 'script_to_jquery_ui' );
+    wp_enqueue_script( 'choc_calendar_script' );
+    wp_enqueue_style( 'choc_calendar_styles' );
 }
+add_action( 'admin_print_styles', 'choc_calendar_styles' );
 
 ?>
-<!DOCTYPE html>
-<html>
-    <head>
-        <link href="style.css" rel="stylesheet">
-    </head>
-    <body>
-        <?php
-        $calendar = new Choc_Calendar(3, 2019);
-        $calendar->show();
-        ?>
-    </body>
-</html>
+<br>
+<?php
+class Choc_Calendar {
+
+    public function __construct($year = '', $month = '') {
+
+        $date = time();
+
+        if (empty($year) OR empty($month)) {
+            $year = date('Y', $date);
+            $month = date('m', $date);
+            $day = date('d', $date);
+        }
+
+        $first_day = mktime(0, 0, 0, $month, 1, $year);
+        $title = date('F', $first_day);
+        $day_of_week = date('D', $first_day);
+
+         switch ($day_of_week) {
+            case "Mon": $blank = 0;
+                break;
+            case "Tue": $blank = 1;
+                break;
+            case "Wed": $blank = 2;
+                break;
+            case "Thu": $blank = 3;
+                break;
+            case "Fri": $blank = 4;
+                break;
+            case "Sat": $blank = 5;
+                break;
+            case "Sun": $blank = 6;
+                break;
+        }
+
+        $days_in_month = cal_days_in_month(0, $month, $year);
+
+        echo '<table border=1 width=394>';
+
+        echo '<tr>';
+        echo '<th colspan=60>' . $title . ' ' . $year . '</th>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<td width=62>Mon</td>';
+        echo '<td width=62>Tue</td>';
+        echo '<td width=62>Wed</td>';
+        echo '<td width=62>Thu</td>';
+        echo '<td width=62>Fri</td>';
+        echo '<td width=62>Sat</td>';
+        echo '<td width=62>Sun</td>';
+        echo '</tr>';
+
+        $day_count = 1;
+
+        while ($blank > 0) {
+            echo '<td></td>';
+            $blank = $blank - 1;
+            $day_count++;
+        }
+
+        $day_num = 1;
+
+        while ($day_num <= $days_in_month) {
+
+            echo '<td>' . $day_num . '</td>';
+            $day_num++;
+            $day_count++;
+
+            if ($day_count > 7) {
+                echo '</tr><tr>';
+                $day_count = 1;
+            }
+        }
+
+        while ($day_count > 1 && $day_count <= 7) {
+            echo '<td> </td>';
+            $day_count++;
+        }
+
+        echo '</tr>';
+
+        echo '</table>';
+    }
+
+}
+
+$c = new Choc_Calendar(2019, 3);
