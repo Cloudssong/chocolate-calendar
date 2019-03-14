@@ -15,6 +15,7 @@ Text Domain: chocolate-calendar
 
 //-----------------------------------------------------------Database------------------------------------------------------------------------------
 
+// TODO: ADD INTO SENGERMED-DB!!
 // Creates new table for plugin onto activation
 register_activation_hook( __FILE__, 'choc_crud_table' );
 function choc_crud_table() {
@@ -25,8 +26,8 @@ function choc_crud_table() {
     $table_name = $wpdb->prefix . "choc_meta";
     $sql = "CREATE TABLE `$table_name` (
         `date_id` int(11) NOT NULL,
-        `date` varchar(220) DEFAULT NULL,
-        `active` varchar(220) DEFAULT NULL,
+        `date` varchar(220) DEFAULT NULL, /* TODO: datetime(?) */
+        `client` varchar(220) DEFAULT NULL,
         `dummy1` int(11) DEFAULT '1',
         PRIMARY KEY(id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8_general_ci;
@@ -50,11 +51,158 @@ function add_choc_admin_page() {
     add_menu_page( 'Chocolate Calendar', 'Chocolate Calendar', 'manage_options', __FILE__, 'choc_admin_page', 'dashicons-calendar-alt' );
 }
 
-// TODO: basically the content of the admin page (??)
+// function for the content of the new admin page
 function choc_admin_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . "choc_meta";
-    echo 'Still alive!';
+
+
+
+
+    // TODO: ADD CALENDAR HERE??
+
+
+
+
+    // Insert data onto submit
+    if( isset($_POST[ "newSubmit" ])) {
+        $date = $_POST["newDate"];
+        $client = $_POST["newClient"];
+        $wpdb->query("INSERT INTO $table_name ( date, client ) VALUES ( '$date', '$client' )");
+        // automatically reload the page // TODO: AJAX!!
+        echo "<script> location.replace('admin.php?page=chocolate-calendar%2Fchocolate-calendar.php');</script>";
+    }
+
+    // Update data onto submit (if the date_id is in the URL -> anchor)
+    if( isset($_POST[ "updateSubmit" ])) {
+        $id = $_POST["updateId"];
+        $date = $_POST["updateDate"];
+        $client = $_POST["updateClient"];
+        $wpdb->query("UPDATE $table_name SET date='$date', client='$client' WHERE date_id='$id'");
+        // automatically reload the page // TODO: AJAX!!
+        echo "<script> location.replace('admin.php?page=chocolate-calendar%2Fchocolate-calendar.php');</script>";
+    }
+
+    // Delete data onto submit (if the date_id is in the URL -> anchor)
+    if( isset($_GET["delete"])) {
+        $delete_id = $_GET["delete"];
+        $wpdb->query("DELETE FROM $table_name WHERE date_id='$delete_id'");
+        // automatically reload the page // TODO: AJAX!!
+        echo "<script> location.replace('admin.php?page=chocolate-calendar%2Fchocolate-calendar.php');</script>"; 
+    }
+
+    ?>
+
+    <div class="wrap">
+    <h2>Chocolate Calender CRUD</h2>
+    <!-- using default WP CSS for the moment -->
+    <table class="wp-list-table widefat striped">
+        <thead>
+            <tr>
+                <th width="25%">Date_ID</th>
+                <th width="25%">Date</th>
+                <th width="25%">Client</th>
+                <th width="25%">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- empty action since we use same page to process the data -->
+            <form action="" method="post">
+                <tr>
+                    <td>
+                        <input type="text" value="AUTO_GENERATED" disabled>
+                    </td>
+                    <td>
+                        <input type="text" name="newDate" id="newDate">
+                    </td>
+                    <td>
+                        <input type="text" name="newClient" id="newClient">
+                    </td>
+                    <td>
+                        <button type="submit" name="newSubmit" id="newSubmit">INSERT</button>
+                    </td>
+                </tr>
+            </form>
+
+            <?php
+                $result = $wpdb->get_results( "SELECT * FROM $table_name" );
+                // TODO: TABLE NEEDS TO BE CREATED
+                /* foreach ( $result AS $print ) {
+                    echo "
+                        <tr>
+                            <td width='25%'>$print->date_id</td>
+                            <td width='25%'>$print->date</td>
+                            <td width='25%'>$print->client</td>
+                            <td width='25%'>
+                                // Anchor tag for button UPDATE
+                                <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&update=$print->date_id>
+                                    <button type='button'>UPDATE</button>
+                                </a>
+                                // Anchor tag for button DELETE
+                                <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&delete=$print->date_id>
+                                    <button type='button'>DELETE</button>
+                                </a>
+                            </td>
+                        </tr>
+                    ";
+                } */
+            ?>
+
+        </tbody>
+    </table>
+    <br><br>
+
+    <?php
+    // loads the results and is ready to update them
+    if(isset($_GET["update"])) {
+        $update_id = $_GET["update"];
+        $result = $wpdb->get_results( "SELECT * FROM $table_name WHERE data_id='update_id'" );
+        foreach( $result AS $print ) {
+            $date = $print->date;
+            $client = $print->client;
+        }
+        echo "
+        <table class='wp-list-table widefat striped'>
+            <thead>
+                <tr>
+                    <th width='25%'>Date_ID</th>
+                    <th width='25%'>Date</th>
+                    <th width='25%'>Client</th>
+                    <th width='25%'>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <form action='' method='post'>
+                    <tr>
+                        <td width='25%'>$print->date_id
+                            <input type='hidden' name='updateId' id='updateId' value='$print->user_id>
+                        </td>
+                        <td width='25%'>
+                            <input type='text' name='updateDate' id='updateDate' value='$print->date>
+                        </td>
+                        <td width='25%'>
+                          <input type='text' name='updateClient' id='updateClient' value='$print->client>
+                        </td>
+                        <td width='25%'>
+                            // Confirmation button
+                            <button type='submit' name='updateSubmit' id='updateSubmit'>UPDATE</button>
+                            <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php'>
+                                // Cancel button - simply reload and remove date_id from URL
+                                <button type='button>CANCEL</button>
+                            </a>
+                        </td>
+                    </tr>
+                </form>
+            </tbody>
+        </table>
+        ";
+    }
+
+    ?>
+
+    </div>
+
+    <?php
 }
 
 //-----------------------------------------------------------Require------------------------------------------------------------------------------
