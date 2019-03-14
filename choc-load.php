@@ -1,27 +1,29 @@
 <?php
+//----------------------------------------------------Load from DB------------------------------------------------------------------------------
 
-//load.php
+/*
+function choc-load() {
+    global $wpdb;
+    
+    $data = array();
 
-/* $connect = new PDO('mysql:host=localhost;dbname=testing', 'root', '');
+    $query = "SELECT * FROM events ORDER BY id";
 
-$data = array();
+    $statement = $connect->prepare($query);
 
-$query = "SELECT * FROM events ORDER BY id";
+    $statement->execute();
 
-$statement = $connect->prepare($query);
+    $result = $statement->fetchAll();
 
-$statement->execute();
-
-$result = $statement->fetchAll();
-
-foreach($result as $row)
-{
- $data[] = array(
-  'id'   => $row["id"],
-  'title'   => $row["title"],
-  'start'   => $row["start_event"],
-  'end'   => $row["end_event"]
- );
+    foreach($result as $row)
+    {
+    $data[] = array(
+    'id'   => $row["id"],
+    'title'   => $row["title"],
+    'start'   => $row["start_event"],
+    'end'   => $row["end_event"]
+    );
+    }
 }
 
 echo json_encode($data); */

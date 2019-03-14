@@ -1,2 +1,2 @@
 <?php
-// silence is goldsen
+// silence is golden
