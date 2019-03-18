@@ -16,7 +16,7 @@ Text Domain: chocolate-calendar
 //-----------------------------------------------------------Require------------------------------------------------------------------------------
 
 function choc_calendar_styles() {
-    // call jquery (already registered by default, but better use google ajax lib)
+    // Call jquery (already registered by default, but better use google ajax lib)
  /*    wp_deregister_script('jquery');
 	wp_register_script('jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js', false, '1.3.2', true);  */
 	wp_enqueue_script('jquery');
@@ -44,9 +44,9 @@ include ( 'choc-functions.php' );
 register_activation_hook( __FILE__, 'choc_crud_table' );
 function choc_crud_table() {
     global $wpdb;
-    // charset + collation --> e.g. utf8_general_ci 
+    // Charset + collation --> e.g. utf8_general_ci 
     $charset_collate = $wpdb->get_charset_collate();
-    // prefix set on WP-installation
+    // Prefix set on WP-installation
     $table_name = $wpdb->prefix . "choc_meta";
     $sql = "CREATE TABLE `$table_name` IF NOT EXISTS (
         `date_id` int(11) NOT NULL,
@@ -60,15 +60,15 @@ function choc_crud_table() {
 
 //------------------------------------------------------Create Admin Page--------------------------------------------------------------------------
 
-// adds admin menu
+// Adds admin menu
 add_action( 'admin_menu', 'add_choc_admin_page' );
 
-// defines the admin page (npage-title / menu-title / capability / slug / function / icon-url (/ position) )
+// Defines the admin page (npage-title / menu-title / capability / slug / function / icon-url (/ position) )
 function add_choc_admin_page() {
     add_menu_page( 'Chocolate Calendar', 'Chocolate Calendar', 'manage_options', __FILE__, 'choc_admin_page', 'dashicons-calendar-alt' );
 }
 
-// function for the content of the new admin page
+// Function for the content of the new admin page
 function choc_admin_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . "choc_meta";

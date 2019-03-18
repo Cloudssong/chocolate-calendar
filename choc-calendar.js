@@ -14,11 +14,16 @@ jQuery(document).ready(function() {
     console.log(myDate);
     me.toggleClass("active");
     jQuery.ajax({
-      url: "this is the insert",
-      method: "GET", // Muss GET/POST auslesen
+      url: "/localhost/mysite/wp-content/plugins/chocolate-calendar/choc-val.php",
+	  method: "GET", // Muss GET/POST auslesen
+	  data: {name: 'this'},
       success: function(response) {
-        jQuery("#inserted").html(response);
-      }
+		  console.log(response);
+		//jQuery("#inserted").html(response.lol);
+	  },
+	  error: function(response){
+		  console.log("error");
+	  }
     });
 
     if (jQuery(".active")) {
