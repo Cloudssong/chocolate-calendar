@@ -32,10 +32,26 @@ function choc_calendar_styles() {
     wp_enqueue_script( 'script_to_jquery_ui' );
     wp_enqueue_script( 'choc_calendar_script' );
     wp_enqueue_style( 'choc_calendar_styles' );
-}
-add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
 
-include ( 'choc-functions.php' );
+    // Localize a registered script with data for JS variables ( e.g. for localization, validation )
+    // After register/enqueue
+    // Handle, Name, Data
+    wp_localize_script( 
+        'choc_calendar_script',
+        'choc_calendar_globals',
+        [
+            // setting AJAX-URL to better access it
+            'ajax_url'  =>  admin_url( 'admin-ajax.php' ),
+            // creating a Nonce for security
+            'nonce'     =>  wp_create_nonce( 'choc_nonce' )
+        ]
+        );
+    }
+    add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
+
+    include ( 'choc-functions.php' );
+
+
 
 //-----------------------------------------------------------Database------------------------------------------------------------------------------
 
@@ -131,7 +147,7 @@ function choc_admin_page() {
                         <input type="text" value="AUTO_GENERATED" disabled>
                     </td>
                     <td>
-                        <input type="text" name="newDate" id="newDate">
+                        <input type="text" name="newDate" id="newDate" placeholder="YYYY-MM-DD">
                     </td>
                     <td>
                         <input type="text" name="newClient" id="newClient">
@@ -171,7 +187,7 @@ function choc_admin_page() {
     <br><br>
 
     <?php
-    // loads the results and is ready to update them
+    // loads the results and is ready to update them - confirmation and cancel (remove date_id from URL) button included
     if(isset($_GET["update"])) {
         $update_id = $_GET["update"];
         $result = $wpdb->get_results( "SELECT * FROM $table_name WHERE data_id='update_id'" );
@@ -202,10 +218,8 @@ function choc_admin_page() {
                           <input type='text' name='updateClient' id='updateClient' value='$print->client>
                         </td>
                         <td width='25%'>
-                            // Confirmation button
                             <button type='submit' name='updateSubmit' id='updateSubmit'>UPDATE</button>
                             <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php'>
-                                // Cancel button - simply reload and remove date_id from URL
                                 <button type='button>CANCEL</button>
                             </a>
                         </td>
