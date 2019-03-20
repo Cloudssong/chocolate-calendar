@@ -1,6 +1,15 @@
 <?php
 //----------------------------------------------------Insert into DB------------------------------------------------------------------------------
 
+/* function choc_insert() {
+    global $wpdb
+
+    $date = $_POST["newDate"];
+    $client = $_POST["newClient"];
+    $wpdb->query("INSERT INTO $table_name ( date, client ) VALUES ( '$date', '$client' )");
+
+}; */
+
 /* 
 
 function choc-insert() {

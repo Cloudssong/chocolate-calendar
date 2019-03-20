@@ -50,8 +50,11 @@ function choc_calendar_styles() {
     add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
 
     include ( 'choc-functions.php' );
-
-
+    include ( 'choc-insert.php' );
+    include ( 'choc-update.php' );
+    include ( 'choc-delete.php' );
+    
+    
 
 //-----------------------------------------------------------Database------------------------------------------------------------------------------
 

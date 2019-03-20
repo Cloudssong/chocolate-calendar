@@ -14,8 +14,21 @@ function chocAjax() {
     // Checking the nonce
     // check_ajax_referer( 'choc_nonce' ); TODO: Nonce not working (error)
 
-    // TODO: Here comes the INSERT or UPDATE
-    
+    // TODO: Here comes the INSERT or DELETE
+   /*  global $wpdb;
+    $table_name = $wpdb->prefix . "choc_meta";
+    $date = $_POST[ "myDate" ];
+    $client = "to be added" ;
+
+    if ( $wpdb->query("SELECT date FROM $table_name WHERE date = ' " . $date . " ' " )->num_rows > 0 ) {
+        $wpdb->query("DELETE * FROM $table_name ( date, client ) WHERE date = ' " . $date . " ' ");
+        echo 'Selected date deleted!';
+    } else {
+        $wpdb->query("INSERT INTO $table_name ( date, client ) VALUES ( '$date', '$client' )");
+        echo 'Selected date added!';
+    } */
+
+
     $response[ 'success' ] = true;
 
     // Echo what was saved in JSON and shut down

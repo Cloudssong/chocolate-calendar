@@ -36,6 +36,9 @@ function getCalender($date,$headline = array('Mo','Di','Mi','Do','Fr','Sa','So')
         $day_name = date('D',mktime(0,0,0,date('m',$date),$i,date('Y',$date)));
         // Gets the day of the week (numeric)
         $day_number = date('w',mktime(0,0,0,date('m',$date),$i,date('Y',$date)));
+         // Gets the days datum
+        $days_date = date('Y-m-d', mktime(0,0,0,date('m',$date),$i,date('Y',$date)));
+        // echo $days_date;
         
         // If it's the first of the month
         if( $i == 1) {
@@ -44,22 +47,22 @@ function getCalender($date,$headline = array('Mo','Di','Mi','Do','Fr','Sa','So')
             // If the 'today' is the first day of the month and no monday -> print the last days of last month until it's monday
             for( $b = $s; $b > 0; $b-- ) {
                 $x = $LastMonthSum-$b;
-                echo '<div class="day before" data-mydate="' . $i . '">'.sprintf("%02d",$x)."</div>\n";
+                echo '<div class="day before" data-mydate="' . $days_date . '">'.sprintf("%02d",$x)."</div>\n";
             }
         } 
         
         // Checks if it's today -> adds style
         if( $i == date('d',$date) && date('m.Y',$date) == date('m.Y')) {
-            echo '<div class="day current" data-mydate="' . $i . '">'.sprintf("%02d",$i)."</div>\n";
+            echo '<div class="day current" data-mydate="' . $days_date . '">'.sprintf("%02d",$i)."</div>\n";
         } else {
-            echo '<div class="day normal" data-mydate="' . $i . '">'.sprintf("%02d",$i)."</div>\n";
+            echo '<div class="day normal" data-mydate="' . $days_date . '">'.sprintf("%02d",$i)."</div>\n";
         }
         
         // Create new days until sunday, then start new week in new line
         if( $i == $sum_days) {
             $next_sum = (6 - array_search($day_name,array('Mon','Tue','Wed','Thu','Fri','Sat','Sun')));
             for( $c = 1; $c <=$next_sum; $c++) {
-                echo "<div class='day after'> ".sprintf("%02d",$c)." </div>\n"; 
+                echo '<div class="day after" > '.sprintf("%02d",$c)." </div>\n"; 
             }
         }
     }
