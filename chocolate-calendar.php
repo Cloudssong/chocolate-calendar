@@ -53,8 +53,9 @@ function choc_calendar_styles() {
     include ( 'choc-insert.php' );
     include ( 'choc-update.php' );
     include ( 'choc-delete.php' );
+    include ( 'choc-shortcode.php' );
     
-    
+    // add_shortcode('frontend_calendar_sc', 'choc_frontend_calendar'); TODO: Add shortcode
 
 //-----------------------------------------------------------Database------------------------------------------------------------------------------
 
