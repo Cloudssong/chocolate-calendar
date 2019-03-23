@@ -13,6 +13,54 @@ License: GPLv2 or later
 Text Domain: chocolate-calendar
 */
 
+//------------------------------------------------------GUMP validation------------------------------------------------------------------
+//  Require GUMP -> Every function uses a new GUMP object for the validation
+require "GUMP-master/gump.class.php";
+$choc_validator = new GUMP();
+
+// Set data -> Already set!
+/* $_POST = array(
+    'date' => '',  
+    'client' => ''
+); */
+// Sanitize the Post
+$_POST = $choc_validator->sanitize($_POST);
+// Define rules and filters
+$rules = array(
+    'date' => 'required|date|exact_len,10',
+    'client' => 'valid_name|min_len,2'
+);
+$filters = array(
+    'date' => 'trim|sanitize_string',  // might write own sanitize_date
+    'client' => 'trim|sanitize_string'
+);
+// Filter the Post
+$_POST = $choc_validator->filter($_POST, $filters);
+// Validate Post
+$validated = $choc_validator->validate($_POST, $rules);
+// Check if Validation was successful
+if($validated === TRUE) {
+    // Can use Post safely
+    echo "Successful Validation\n\n";
+} else {
+    // Use built in error message (get_readable_errors(boolean)) -> true => HTML, false => array
+    
+    echo "<div class='choc_GUMP_errors'> There were errors with the data you provided \n";
+    echo $choc_validator->get_readable_errors(true);
+    echo "</div>";
+}
+
+
+//TODO: Andere require_once statt include
+
+    // include ( 'choc-functions.php' );
+    /* include ( 'choc-insert.php' );
+    include ( 'choc-update.php' );
+    include ( 'choc-delete.php' ); */
+    include ( 'choc-shortcodes.php' );
+    
+    // add_shortcode('frontend_calendar_sc', 'choc_frontend_calendar'); TODO: Add shortcode
+
 //-----------------------------------------------------------Require------------------------------------------------------------------------------
 
 function choc_calendar_styles() {
@@ -47,15 +95,52 @@ function choc_calendar_styles() {
         ]
         );
     }
-    add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
+add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
 
-    include ( 'choc-functions.php' );
-    include ( 'choc-insert.php' );
-    include ( 'choc-update.php' );
-    include ( 'choc-delete.php' );
-    include ( 'choc-shortcode.php' );
-    
-    // add_shortcode('frontend_calendar_sc', 'choc_frontend_calendar'); TODO: Add shortcode
+
+//---------------------------------------------------Navigate to 'today'---------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------Show the timeslots---------------------------------------------------------------------------
+
+
+//----------------------------------------------------Feedback for AJAX---------------------------------------------------------------------------
+
+
+
+    function chocAjax() { 
+        // Checking the nonce
+        check_ajax_referer( 'choc_nonce' );
+        // die("xxx");
+        // TODO: Here comes the INSERT or DELETE
+        global $wpdb;
+        $table_name = $wpdb->prefix . "choc_meta";
+        $date = $_POST[ "myDate" ];
+        $client = "to be added" ;
+
+        if ( $wpdb->query("SELECT date FROM $table_name WHERE date = ' " . $date . " ' " )->num_rows > 0 ) {
+            $wpdb->query("DELETE * FROM $table_name ( date, client ) WHERE date = ' " . $date . " ' ");
+            echo 'Selected date deleted!';
+        } else {
+            $wpdb->query("INSERT INTO $table_name ( date, client ) VALUES ( '$date', '$client' )");
+            echo 'Selected date added!';
+        }
+
+        $response[ 'success' ] = true;
+
+        // Echo what was saved in JSON and shut down
+        /* $response = json_encode( $response );
+        echo $response; */
+        die();
+    }
+
+
+// If logged in site
+add_action( 'wp_ajax_chocAjax', 'chocAjax');
+// If not loged in site
+add_action( 'wp_ajax_nopriv_chocAjax', 'chocAjax'); // TODO: Doesn't work
+
 
 //-----------------------------------------------------------Database------------------------------------------------------------------------------
 
@@ -97,7 +182,9 @@ function choc_admin_page() {
 
 
 
-    // TODO: ADD CALENDAR HERE??
+    //--------------------------------------------------------Calendar-Class---------------------------------------------------------------------------
+
+    require 'choc-calendar-fct.php';
 
 
 
@@ -107,7 +194,6 @@ function choc_admin_page() {
         $date = $_POST["newDate"];
         $client = $_POST["newClient"];
         $wpdb->query("INSERT INTO $table_name ( date, client ) VALUES ( '$date', '$client' )");
-        // automatically reload the page // TODO: AJAX!!
         echo "<script> location.replace('admin.php?page=chocolate-calendar%2Fchocolate-calendar.php');</script>";
     }
 
@@ -117,7 +203,6 @@ function choc_admin_page() {
         $date = $_POST["updateDate"];
         $client = $_POST["updateClient"];
         $wpdb->query("UPDATE $table_name SET date='$date', client='$client' WHERE date_id='$id'");
-        // automatically reload the page // TODO: AJAX!!
         echo "<script> location.replace('admin.php?page=chocolate-calendar%2Fchocolate-calendar.php');</script>";
     }
 
@@ -125,7 +210,6 @@ function choc_admin_page() {
     if( isset($_GET["delete"])) {
         $delete_id = $_GET["delete"];
         $wpdb->query("DELETE FROM $table_name WHERE date_id='$delete_id'");
-        // automatically reload the page // TODO: AJAX!!
         echo "<script> location.replace('admin.php?page=chocolate-calendar%2Fchocolate-calendar.php');</script>"; 
     }
 
@@ -168,21 +252,24 @@ function choc_admin_page() {
                 foreach ( $result AS $print ) {
                     // TODO: HOW AND WHERE TO BEST USE MOMENT.JS
                     // Adds Anchors for UPDATE and DELETE
-                    echo "
+                    ?>
+                    
                         <tr>
-                            <td width='25%'>$print->date_id</td>
-                            <td width='25%'>$print->date</td>
-                            <td width='25%'>$print->client</td>
-                            <td width='25%'>
-                                <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&update=$print->date_id>
-                                    <button type='button'>UPDATE</button>
+                            <td width="25%"><?= $print->date_id ?></td>
+                            <td width="25%"><?= $print->date ?></td>
+                            <td width="25%"><?= $print->client ?></td>
+                            <td width="25%">
+                                <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&update=<?= $print->date_id ?>">
+                                    <button>UPDATE</button>
                                 </a>
-                                <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&delete=$print->date_id>
-                                    <button type='button'>DELETE</button>
+                                <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&delete=<?= $print->date_id ?>">
+                                    <button>DELETE</button>
                                 </a>
                             </td>
                         </tr>
-                    ";
+
+                    <?php
+                // foreach
                 }
             ?>
 
@@ -198,49 +285,46 @@ function choc_admin_page() {
         foreach( $result AS $print ) {
             $date = $print->date;
             $client = $print->client;
+        //foreach
         }
-        echo "
-        <table class='wp-list-table widefat striped'>
+        ?>
+        <table class="wp-list-table widefat striped">
             <thead>
                 <tr>
-                    <th width='25%'>Date_ID</th>
-                    <th width='25%'>Date</th>
-                    <th width='25%'>Client</th>
-                    <th width='25%'>Actions</th>
+                    <th width="25%">Date_ID</th>
+                    <th width="25%">Date</th>
+                    <th width="25%">Client</th>
+                    <th width="25%">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <form action='' method='post'>
+                <form action="" method="post">
                     <tr>
-                        <td width='25%'>$print->date_id
-                            <input type='hidden' name='updateId' id='updateId' value='$print->user_id>
+                        <td width="25%"><?= $print->date_id ?>
+                            <input type="hidden" name="updateId" id="updateId" value="<?= $print->user_id ?>">
                         </td>
-                        <td width='25%'>
-                            <input type='text' name='updateDate' id='updateDate' value='$print->date>
+                        <td width="25%">
+                            <input type="text" name="updateDate" id="updateDate" value="<?= $print->date ?>">
                         </td>
-                        <td width='25%'>
-                          <input type='text' name='updateClient' id='updateClient' value='$print->client>
+                        <td width="25%">
+                          <input type="text" name="updateClient" id="updateClient" value="<?= $print->client ?>">
                         </td>
-                        <td width='25%'>
-                            <button type='submit' name='updateSubmit' id='updateSubmit'>UPDATE</button>
-                            <a href='admin.php?page=chocolate-calendar%2Fchocolate-calendar.php'>
-                                <button type='button>CANCEL</button>
+                        <td width="25%">
+                            <button type="submit" name="updateSubmit" id="updateSubmit">UPDATE</button>
+                            <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php">
+                                <button>CANCEL</button>
                             </a>
                         </td>
                     </tr>
                 </form>
             </tbody>
         </table>
-        ";
+    <?php
+    // if
     }
-
     ?>
-
+    <!-- wrapper -->
     </div>
-
+    <!-- page fct -->
     <?php
 }
-
-//--------------------------------------------------------Calendar-Class---------------------------------------------------------------------------
-
-require 'choc-calendar-fct.php';

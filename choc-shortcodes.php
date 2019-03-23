@@ -2,5 +2,9 @@
 // Here comes the awesome shortcode
 
 function choc_frontend_calendar() {
-    echo 'x';
+    // Create Calendar-fct
+    return 'x';
 }
+
+
+?>

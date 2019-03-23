@@ -68,14 +68,6 @@ color: black;
 .active {
     background-color: #BBE3A6;
 }
-
-.choc_GUMP_errors {
-    color:#D8000C;
-    background-color: #FFBABA;
-    max-width: 40%;
-    margin: auto;
-    text-align: center;
-}
 </style>
 </head>
 <body>
@@ -103,6 +95,45 @@ function yearForward( $timestamp ){
 
 function getCalender($date,$headline = array('Mo','Di','Mi','Do','Fr','Sa','So')) {
     $out = "";
+
+    // Perparation to set monthnames to German
+    $arrMonth = array(
+        "January" => "Januar",
+        "February" => "Februar",
+        "March" => "M&auml;rz",
+        "April" => "April",
+        "May" => "Mai",
+        "June" => "Juni",
+        "July" => "Juli",
+        "August" => "August",
+        "September" => "September",
+        "October" => "Oktober",
+        "November" => "November",
+        "December" => "Dezember"
+    );
+    
+    
+    $out .= <<<CAL
+    <!-- Wrapper for Calendar CSS and toggle-function for days -->
+    <div class="calender" id="chocToggle">
+        <div class="pagination">
+            <!-- Creates buttons for earlier defined maneuvering functions -->
+            <a href="?timestamp={yearBack($date);}" class="last">|&laquo;</a> 
+            <a href="?timestamp={monthBack($date);}" class="last">&laquo;</a> 
+            <!-- Head to put out current month and year -->
+            <div class="pagihead">
+            <span> {$arrMonth[date('F',$date)]}  {date('Y',$date);}</span>
+            </div>
+            <!-- Creates buttons for earlier defined maneuvering functions -->
+            <a href="?timestamp={monthForward($date);}" class="next">&raquo;</a>
+            <a href="?timestamp={yearForward($date);}" class="next">&raquo;|</a>  
+        </div>
+        <!-- Makes sure there's no floating elements on the left side -->
+        <div class="clear"></div>
+    </div>
+CAL;
+    
+
     // Days of the calendar month
     $sum_days = date('t',$date);
     // Days of the last month
@@ -149,6 +180,7 @@ function getCalender($date,$headline = array('Mo','Di','Mi','Do','Fr','Sa','So')
         }
     }
     return $out;
+    
 }
 
 
@@ -157,45 +189,13 @@ if( isset($_REQUEST['timestamp'])) $date = $_REQUEST['timestamp'];
 // If not get new timestamp
 else $date = time();
 
-// Perparation to set monthnames to German
-$arrMonth = array(
-    "January" => "Januar",
-    "February" => "Februar",
-    "March" => "M&auml;rz",
-    "April" => "April",
-    "May" => "Mai",
-    "June" => "Juni",
-    "July" => "Juli",
-    "August" => "August",
-    "September" => "September",
-    "October" => "Oktober",
-    "November" => "November",
-    "December" => "Dezember"
-);
-    
+
 // Perparation for the output of the Headline in German
 $headline = array('Mo','Di','Mi','Do','Fr','Sa','So');
 
+// Creates the calendar
+echo getCalender($date,$headline);
 ?>
 
-<!-- Wrapper for Calendar CSS and toggle-function for days -->
-<div class="calender" id="chocToggle">  
-    <div class="pagination">
-        <!-- Creates buttons for earlier defined maneuvering functions -->
-        <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&timestamp=<?php echo yearBack($date); ?>" class="last">|&laquo;</a> 
-        <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&timestamp=<?php echo monthBack($date); ?>" class="last">&laquo;</a> 
-        <!-- Head to put out current month and year -->
-        <div class="pagihead">
-        <span><?php echo $arrMonth[date('F',$date)];?> <?php echo date('Y',$date); ?></span>
-        </div>
-        <!-- Creates buttons for earlier defined maneuvering functions -->
-        <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&timestamp=<?php echo monthForward($date); ?>" class="next">&raquo;</a>
-        <a href="admin.php?page=chocolate-calendar%2Fchocolate-calendar.php&timestamp=<?php echo yearForward($date); ?>" class="next">&raquo;|</a>  
-    </div>
-    <!-- Creates the calendar -->
-    <?php echo getCalender($date,$headline); ?>
-    <!-- Makes sure there's no floating elements on the left side -->
-    <div class="clear"></div>
-</div>
 </body>
 </html>

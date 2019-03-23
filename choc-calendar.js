@@ -7,7 +7,10 @@
 // Eventclicker for each day -> change class and add into/ delete from DB
 
 // To avoid the jQuery-conflict in WP
-var $ = jQuery;
+var $ = jQuery
+var data = new FormData();
+data.append('action', 'chocAjax');
+data.append('_ajax_nonce', 'choc_calendar_globals.choc_nonce');
 
 
 jQuery(document).ready(function() {
@@ -21,11 +24,13 @@ jQuery(document).ready(function() {
 		jQuery.ajax({
 			// Setting to admin-ajax.php - The way WP wants it
 			url: choc_calendar_globals.ajax_url,
-			method: "POST", // TODO: POST oder GET ??
-			datatype: 'json', // TODO: Wird per Json übergeben ??
+			// Gets the custom FormData 	
+			data: data,
+			type: 'POST',
+			method: 'POST',
 			// Start our saving function and check the nonce
-			data: {action: 'chocAjax',
-					_ajax_nonce: choc_calendar_globals.choc_nonce },
+			processData: false,
+			contentType: false,
 			// If successful, add the class
 			success: function(response) {
 				me.toggleClass("active");
