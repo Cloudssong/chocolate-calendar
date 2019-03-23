@@ -16,39 +16,18 @@ Text Domain: chocolate-calendar
 //------------------------------------------------------GUMP validation------------------------------------------------------------------
 //  Require GUMP -> Every function uses a new GUMP object for the validation
 require "GUMP-master/gump.class.php";
-$choc_validator = new GUMP();
 
-// Set data -> Already set!
-/* $_POST = array(
-    'date' => '',  
-    'client' => ''
-); */
-// Sanitize the Post
-$_POST = $choc_validator->sanitize($_POST);
-// Define rules and filters
-$rules = array(
-    'date' => 'required|date|exact_len,10',
-    'client' => 'valid_name|min_len,2'
-);
-$filters = array(
-    'date' => 'trim|sanitize_string',  // might write own sanitize_date
-    'client' => 'trim|sanitize_string'
-);
-// Filter the Post
-$_POST = $choc_validator->filter($_POST, $filters);
-// Validate Post
-$validated = $choc_validator->validate($_POST, $rules);
-// Check if Validation was successful
-if($validated === TRUE) {
-    // Can use Post safely
-    echo "Successful Validation\n\n";
-} else {
-    // Use built in error message (get_readable_errors(boolean)) -> true => HTML, false => array
-    
-    echo "<div class='choc_GUMP_errors'> There were errors with the data you provided \n";
-    echo $choc_validator->get_readable_errors(true);
-    echo "</div>";
+if ($_SERVER["REQUEST_METHOD"] == "POST" ) {
+    if ( $_POST = $_POST[ "myDate" ] ) {
+        require "choc-calendar-val.php";
+    } elseif ( $_POST = $_POST[ "name" ] && $_POST[ "email" ] ) {
+        require "choc-form-val.php";
+    } else {
+        echo "Keine Daten zur Validierung vorhanden!";
+    }
+// if POST
 }
+
 
 
 //TODO: Andere require_once statt include
@@ -328,3 +307,5 @@ function choc_admin_page() {
     <!-- page fct -->
     <?php
 }
+
+// require_once ("choc-form.php"); TODO: This is the frontend-form
