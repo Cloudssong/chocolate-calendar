@@ -43,6 +43,7 @@ function test_input($data) {
   <br><br>
   <h2>PHP Form Validation</h2>
   <p><span class="error">* required field</span></p>
+  <!-- TODO: action="mailto:email@client.com" -->
   <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">  
     * Name: <input type="text" name="name">
     <br><br>

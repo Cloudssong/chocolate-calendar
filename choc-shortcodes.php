@@ -3,8 +3,8 @@
 
 function choc_frontend_calendar() {
     // Create Calendar-fct
-    return 'x';
+    return 'This will create a calendar in case you call this Shortcode!';
 }
-
+add_shortcode('choc_cal', 'choc_frontend_calendar')
 
 ?>

@@ -18,9 +18,9 @@ Text Domain: chocolate-calendar
 require "GUMP-master/gump.class.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" ) {
-    if ( $_POST = $_POST[ "myDate" ] ) {
+    if ( $_POST == $_POST[ "mydate" ] ) {
         require "choc-calendar-val.php";
-    } elseif ( $_POST = $_POST[ "name" ] && $_POST[ "email" ] ) {
+    } elseif ( $_POST == $_POST[ "name" ] && $_POST[ "email" ] ) {
         require "choc-form-val.php";
     } else {
         echo "Keine Daten zur Validierung vorhanden!";
@@ -123,7 +123,6 @@ add_action( 'wp_ajax_nopriv_chocAjax', 'chocAjax'); // TODO: Doesn't work
 
 //-----------------------------------------------------------Database------------------------------------------------------------------------------
 
-// TODO: ADD INTO SENGERMED-DB!!
 // Creates new table for plugin onto activation
 register_activation_hook( __FILE__, 'choc_crud_table' );
 function choc_crud_table() {
@@ -141,6 +140,14 @@ function choc_crud_table() {
         ";
     $wpdb->query( $sql );
 } 
+
+//------------------------------------------------------Setting Variables--------------------------------------------------------------------------
+
+// Get's the path for the plugin
+$choc_dir = plugin_dir_path( __FILE__ );
+// Get's the URL for the plugin
+$choc_url = plugin_dir_url( __FILE__ );
+
 
 //------------------------------------------------------Create Admin Page--------------------------------------------------------------------------
 
@@ -229,7 +236,6 @@ function choc_admin_page() {
                 $result = $wpdb->get_results( "SELECT * FROM $table_name" );
                 // TODO: TABLE NEEDS TO BE CREATED
                 foreach ( $result AS $print ) {
-                    // TODO: HOW AND WHERE TO BEST USE MOMENT.JS
                     // Adds Anchors for UPDATE and DELETE
                     ?>
                     
@@ -260,11 +266,10 @@ function choc_admin_page() {
     // loads the results and is ready to update them - confirmation and cancel (remove date_id from URL) button included
     if(isset($_GET["update"])) {
         $update_id = $_GET["update"];
-        $result = $wpdb->get_results( "SELECT * FROM $table_name WHERE data_id='update_id'" );
+        $result = $wpdb->get_results( "SELECT * FROM $table_name WHERE data_id='$update_id'" ); // data_id? date_id?
         foreach( $result AS $print ) {
             $date = $print->date;
             $client = $print->client;
-        //foreach
         }
         ?>
         <table class="wp-list-table widefat striped">
@@ -280,7 +285,7 @@ function choc_admin_page() {
                 <form action="" method="post">
                     <tr>
                         <td width="25%"><?= $print->date_id ?>
-                            <input type="hidden" name="updateId" id="updateId" value="<?= $print->user_id ?>">
+                            <input type="hidden" name="updateId" id="updateId" value="<?= $print->date_id ?>">
                         </td>
                         <td width="25%">
                             <input type="text" name="updateDate" id="updateDate" value="<?= $print->date ?>">
@@ -307,5 +312,3 @@ function choc_admin_page() {
     <!-- page fct -->
     <?php
 }
-
-// require_once ("choc-form.php"); TODO: This is the frontend-form

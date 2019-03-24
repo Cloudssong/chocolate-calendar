@@ -35,13 +35,12 @@ jQuery(document).ready(function() {
 			success: function(response) {
 				me.toggleClass("active");
 				console.log("kaching");
-				// alert( 'Date added into or removed from Database!' ) // TODO: Uncomment this line once the AJAX is working !! 
-				// jQuery("#inserted").html(response.kaching);
+				alert( 'Date added into or removed from Database!' ) // TODO: Uncomment this line once the AJAX is working !! 
 			},
 			// If not, tell us it's not working 
 			error: function(response){
 				console.log("error");
-				// alert( 'Date could not be updated!' ) // TODO: Uncomment this line once the AJAX is working !! 
+				alert( 'Date could not be updated!' ) // TODO: Uncomment this line once the AJAX is working !! 
 			}
 		});
 		// click
@@ -51,4 +50,4 @@ jQuery(document).ready(function() {
 
 // me.hasClass("active"
 
-// TODO: Hot to implement #inserted -> overlay with 'Day is now active'?
+// TODO: How to implement #inserted -> overlay with 'Day is now active'?
