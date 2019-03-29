@@ -17,18 +17,17 @@ Text Domain: chocolate-calendar
 //  Require GUMP -> Every function uses a new GUMP object for the validation
 require "GUMP-master/gump.class.php";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" ) {
-    if ( $_POST == $_POST[ "mydate" ] ) {
+// TODO: An den Ort der Validierung
+/* 
+if ( $_SERVER["REQUEST_METHOD"] == "POST" ) {
+    if ( array_key_exists('myDate', $_POST) ) {
         require "choc-calendar-val.php";
-    } elseif ( $_POST == $_POST[ "name" ] && $_POST[ "email" ] ) {
+    } elseif ( array_key_exists('name', $_POST) && array_key_exists('email', $_POST) ) {
         require "choc-form-val.php";
     } else {
         echo "Keine Daten zur Validierung vorhanden!";
     }
-// if POST
-}
-
-
+} */
 
 //TODO: Andere require_once statt include
 
@@ -80,7 +79,6 @@ add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
 //---------------------------------------------------Navigate to 'today'---------------------------------------------------------------------------
 
 
-
 //----------------------------------------------------Show the timeslots---------------------------------------------------------------------------
 
 
@@ -90,15 +88,16 @@ add_action( 'admin_enqueue_scripts', 'choc_calendar_styles' );
 
     function chocAjax() { 
         // Checking the nonce
-        check_ajax_referer( 'choc_nonce' );
+        // check_ajax_referer( '_ajax_nonce' );  
         // die("xxx");
         // TODO: Here comes the INSERT or DELETE
         global $wpdb;
         $table_name = $wpdb->prefix . "choc_meta";
-        $date = $_POST[ "myDate" ];
+        // TODO: if array_key exists -> validieren
+        $date = $_POST[ "mydate" ];
         $client = "to be added" ;
-
-        if ( $wpdb->query("SELECT date FROM $table_name WHERE date = ' " . $date . " ' " )->num_rows > 0 ) {
+        $selection = $wpdb->query("SELECT * FROM $table_name WHERE date = ' " . $date . " ' " ); // TODO: Test in PHPmyAdmin
+        if ( $selection->num_rows > 0 ) {
             $wpdb->query("DELETE * FROM $table_name ( date, client ) WHERE date = ' " . $date . " ' ");
             echo 'Selected date deleted!';
         } else {
@@ -233,7 +232,7 @@ function choc_admin_page() {
             </form>
 
             <?php
-                $result = $wpdb->get_results( "SELECT * FROM $table_name" );
+                $result = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY date DESC" );
                 // TODO: TABLE NEEDS TO BE CREATED
                 foreach ( $result AS $print ) {
                     // Adds Anchors for UPDATE and DELETE
